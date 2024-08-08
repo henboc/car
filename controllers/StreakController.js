@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const UserActivity = require('../models/StreakModel'); // Adjust the path as needed
+const { sendEmail } = require('./MailController'); // Adjust the path as needed
 
 // Function to record activity and update streak
 const recordActivity = async (req, res) => {
@@ -11,7 +12,19 @@ const recordActivity = async (req, res) => {
   
       // Find user activity record for the specific project
       let userActivity = await UserActivity.findOne({ userId, projectId });
-  
+            const emailData = {
+              to: 'hamanambu@gmail.com',
+              subject: 'Welcome to Craddule!',
+              text: 'Thank you for signing up to Craddule.',
+              html: '<p>Thank you for signing up to Craddule.</p>'
+          };
+
+          // Call the sendEmail function
+          await sendEmail(
+              { body: emailData }, // Passing the email data as if it came from a request
+              res // Passing the response object to handle the response in the same way
+          );
+
       if (!userActivity) {
         // If no record exists, create a new one
         userActivity = new UserActivity({ userId, projectId, dates: [today] });
