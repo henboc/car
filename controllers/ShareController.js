@@ -12,21 +12,6 @@ const nodemailer = require('nodemailer');
 const API_BASE_URL = require('../config');
 const { sendEmail } = require('./MailController'); 
 
-const transporter = nodemailer.createTransport({
-  // host: process.env.SMTP_HOST,
-  // port: process.env.SMTP_PORT,
-  // secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
-  // auth: {
-  //     user: process.env.EMAIL_USER,
-  //     pass: process.env.EMAIL_PASS
-  // }
-
-  service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
 
 const createLink = async (req, res) => {
   try {
@@ -122,7 +107,7 @@ From the team at Craddule.
     
     const emailData = {
       to: email,
-      subject: 'New Team Invite',
+      subject: 'Individual Feedback Invitation',
       text: text,
       html: html
     };
@@ -160,7 +145,15 @@ const creatShareReviewUser = async (req, res) => {
       return res.status(400).json({ error: 'Incorrect email format' });
     }
     
+    const project = await Project.findById(projectId).populate('userId');
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
 
+    const projectOwner = project.userId.firstName; // Assuming User model has a 'name' field
+    if (!projectOwner) {
+      return res.status(404).json({ error: 'Project owner not found' });
+    }
     
     const newReview = new ReviewInvite({
       projectId,
@@ -171,20 +164,87 @@ const creatShareReviewUser = async (req, res) => {
     });
     //console.log(newTeam);
     await newReview.save();
-    newlink = API_BASE_URL+link;
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Individual Feedback Invitation',
-      text: `Click the link to sign up: ${newlink}`
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-          return res.status(500).json({ message: 'Error sending email', error });
-      }
-      res.status(200).json({ message: 'Email sent', info });
-  });
+    const newLink = API_BASE_URL+link;
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                color: #333;
+                line-height: 1.6;
+            }
+            .container {
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+            .header {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+            .footer {
+                margin-top: 30px;
+                font-size: 14px;
+                color: #777;
+            }
+            .link {
+                color: #1a73e8;
+                text-decoration: none;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">Individual Feedback Invitation</div>
+            <p>Hi Reviewer,</p>
+            <p>Kola has invited you to provide your valuable feedback on a product/service they are working on.</p>
+            <p>The creator would be most grateful, as they see your input and expertise as very valuable to their growth and development. Please use this link <a href="${newLink}" class="link">${newLink}</a> to view the development phase shared with you.</p>
+            <p>Looking forward to your response, as it can help change the world.</p>
+            <p>Warm greetings,</p>
+            <p>From the team at Craddule.</p>
+        </div>
+    </body>
+    </html>
+    `;
+    
+    const text = `
+    Subject: Individual Feedback Invitation
+    
+    Hi Reviewer,
+    
+    Kola has invited you to provide your valuable feedback on a product/service they are working on.
+    
+    The creator would be most grateful, as they see your input and expertise as very valuable to their growth and development. Please use this link ${newLink} to view the development phase shared with you.
+    
+    Looking forward to your response, as it can help change the world.
+    
+    Warm greetings,
+    From the team at Craddule.
+    `;
+        
+        const emailData = {
+          to: email,
+          subject: 'Individual Feedback Invitation',
+          text: text,
+          html: html
+        };
+        
+        // Call the sendEmail function
+        await sendEmail(
+          { body: emailData }, // Passing the email data as if it came from a request
+          console.log(res) // Passing the response object to handle the response in the same way
+        );
+    
+  
     
     //res.json({ status: 200, message: 'Success'});
 
