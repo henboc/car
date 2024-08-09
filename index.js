@@ -4,6 +4,10 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const http = require('http'); 
 const cors = require('cors'); 
+const app = express();
+app.use(express.json());
+app.use(cors());
+app.options('*', cors());
 const bodyParser = require('body-parser');
 const UserRoutes = require('./routes/UserRoutes');
 const ProjectRoutes = require('./routes/ProjectRoutes');
@@ -82,13 +86,11 @@ function errorHandler(err, req, res, next) {
 
 dotenv.config();
 
-const app = express();
+
 const PORT = process.env.PORT || 3001;
 
-app.use(express.json());
+
 app.use(logErrors);
-app.use(cors());
-app.options('*', cors());
 // app.use((res, next) => {
 //   res.header('Access-Control-Allow-Origin', '*');
 //   next();
