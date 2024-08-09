@@ -80,7 +80,7 @@ const createLink = async (req, res) => {
     <div class="container">
         <div class="header">Individual Feedback Invitation</div>
         <p>Hi Reviewer,</p>
-        <p>Kola has invited you to provide your valuable feedback on a product/service they are working on.</p>
+        <p>${projectOwner} has invited you to provide your valuable feedback on a product/service they are working on.</p>
         <p>The creator would be most grateful, as they see your input and expertise as very valuable to their growth and development. Please use this link <a href="${newLink}" class="link">${newLink}</a> to view the development phase shared with you.</p>
         <p>Looking forward to your response, as it can help change the world.</p>
         <p>Warm greetings,</p>
@@ -95,7 +95,7 @@ Subject: Individual Feedback Invitation
 
 Hi Reviewer,
 
-Kola has invited you to provide your valuable feedback on a product/service they are working on.
+${projectOwner} has invited you to provide your valuable feedback on a product/service they are working on.
 
 The creator would be most grateful, as they see your input and expertise as very valuable to their growth and development. Please use this link ${newLink} to view the development phase shared with you.
 
@@ -206,7 +206,7 @@ const creatShareReviewUser = async (req, res) => {
         <div class="container">
             <div class="header">Individual Feedback Invitation</div>
             <p>Hi Reviewer,</p>
-            <p>Kola has invited you to provide your valuable feedback on a product/service they are working on.</p>
+            <p>${projectOwner} has invited you to provide your valuable feedback on a product/service they are working on.</p>
             <p>The creator would be most grateful, as they see your input and expertise as very valuable to their growth and development. Please use this link <a href="${newLink}" class="link">${newLink}</a> to view the development phase shared with you.</p>
             <p>Looking forward to your response, as it can help change the world.</p>
             <p>Warm greetings,</p>
@@ -221,7 +221,7 @@ const creatShareReviewUser = async (req, res) => {
     
     Hi Reviewer,
     
-    Kola has invited you to provide your valuable feedback on a product/service they are working on.
+    ${projectOwner} has invited you to provide your valuable feedback on a product/service they are working on.
     
     The creator would be most grateful, as they see your input and expertise as very valuable to their growth and development. Please use this link ${newLink} to view the development phase shared with you.
     
@@ -246,7 +246,7 @@ const creatShareReviewUser = async (req, res) => {
     
   
     
-    //res.json({ status: 200, message: 'Success'});
+    res.json({ status: 200, message: 'Success'});
 
   } catch (error) {
     console.error(error);
