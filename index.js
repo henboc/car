@@ -40,6 +40,7 @@ const dcfRoutes =require('./routes/FileRoutes');
 const WaitlistRoutes =require('./routes/UserWaitlistRoutes');
 const EnteredPhaseRoutes =require('./routes/EnteredPhaseRoutes');
 const AccelerateRoutes =require('./routes/AccelerateRoutes');
+const MailRoutes =require('./routes/MailRoutes');
 const fileUpload = require('express-fileupload');
 const { setupWebSocket } = require('./controllers/websocket'); 
 //Admin
@@ -139,6 +140,7 @@ app.use('/api/file', dcfRoutes);
 app.use('/api/entered', EnteredPhaseRoutes);
 app.use('/api/waitlist', WaitlistRoutes);
 app.use('/api/accelerate', AccelerateRoutes);
+app.use('/api/mail', MailRoutes);
 
 //Admin
 app.use('/api/admin', AdminUserRoutes);
