@@ -12,18 +12,18 @@ const recordActivity = async (req, res) => {
   
       // Find user activity record for the specific project
       let userActivity = await UserActivity.findOne({ userId, projectId });
-            const emailData = {
-              to: 'hamanambu@gmail.com',
-              subject: 'Welcome to Craddule!',
-              text: 'Thank you for signing up to Craddule.',
-              html: '<p>Thank you for signing up to Craddule.</p>'
-          };
+          //   const emailData = {
+          //     to: 'hamanambu@gmail.com',
+          //     subject: 'Welcome to Craddule!',
+          //     text: 'Thank you for signing up to Craddule.',
+          //     html: '<p>Thank you for signing up to Craddule.</p>'
+          // };
 
-          // Call the sendEmail function
-          await sendEmail(
-              { body: emailData }, // Passing the email data as if it came from a request
-              res // Passing the response object to handle the response in the same way
-          );
+          // // Call the sendEmail function
+          // await sendEmail(
+          //     { body: emailData }, // Passing the email data as if it came from a request
+          //     res // Passing the response object to handle the response in the same way
+          // );
 
       if (!userActivity) {
         // If no record exists, create a new one
