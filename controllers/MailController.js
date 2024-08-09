@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 
 // Create a transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
-    host: 'smtp.craddule.com', // Your SMTP server
+    host: 'mail.craddule.com', // Your SMTP server
     port: 587, // Usually 587 for TLS or 465 for SSL
     secure: false, // Set to true if you use port 465, false for 587
     auth: {
@@ -28,7 +28,8 @@ const sendEmail = async (req, res) => {
         });
 
         console.log('Message sent: %s', info.messageId);
-        res.status(200).json({ message: 'Email sent successfully', messageId: info.messageId });
+        return
+        // res.status(200).json({ message: 'Email sent successfully', messageId: info.messageId });
     } catch (error) {
         console.error('Error sending email: ', error);
         res.status(500).json({ message: 'Failed to send email', error: error.message });

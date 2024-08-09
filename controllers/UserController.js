@@ -4,6 +4,7 @@ const User = require('../models/UserModel');
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { sendEmail } = require('./MailController'); 
 
 
 const createUser = async (req, res) => {

@@ -1,6 +1,7 @@
 // controllers/userWaitlistController.js
 const UserWaitlist = require('../models/UserWaitlistModel');
 const Joi = require('joi');
+const { sendEmail } = require('./MailController'); 
 
 const addToWaitlist = async (req, res) => {
   try {

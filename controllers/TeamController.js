@@ -9,22 +9,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const API_BASE_URL = require('../config');
+const { sendEmail } = require('./MailController'); 
 
-const transporter = nodemailer.createTransport({
-  // host: process.env.SMTP_HOST,
-  // port: process.env.SMTP_PORT,
-  // secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
-  // auth: {
-  //     user: process.env.EMAIL_USER,
-  //     pass: process.env.EMAIL_PASS
-  // }
 
-  service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
+
 
 const createTeam = async (req, res) => {
   try {
@@ -54,7 +42,16 @@ const createTeam = async (req, res) => {
     }
     
 
-    
+    const project = await Project.findById(projectId).populate('userId');
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    const projectOwner = project.userId.firstName; // Assuming User model has a 'name' field
+    if (!projectOwner) {
+      return res.status(404).json({ error: 'Project owner not found' });
+    }
+
     const newTeam = new TeamInvite({
       projectId,
       email,
@@ -64,21 +61,79 @@ const createTeam = async (req, res) => {
     //console.log(newTeam);
     await newTeam.save();
     newlink = API_BASE_URL+link;
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Sign Up for Our Service',
-      text: `Click the link to sign up: ${newlink}`
-  };
+   
+    const text = `
+    Hi co-creator,
 
-  transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-          return res.status(500).json({ message: 'Error sending email', error });
-      }
-      res.status(200).json({ message: 'Email sent', info });
-  });
+    ${projectOwner} is inviting you to collaborate on an exciting project. Please see the Non-Disclosure Agreement sent to each team member from the invitee. Use this link ${newlink} to join the team. Clicking this link and joining the team is taken as an acceptance of the NDA.
+    Feel free to discuss with the invitee before accepting this invitation.
     
-    //res.json({ status: 200, message: 'Success'});
+    Warm greetings,
+    From your new friends at Craddule.
+    `;
+    
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                color: #333;
+                line-height: 1.6;
+            }
+            .container {
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+            .header {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+            .footer {
+                margin-top: 30px;
+                font-size: 14px;
+                color: #777;
+            }
+            .link {
+                color: #1a73e8;
+                text-decoration: none;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">Hi co-creator</div>
+            <p>${projectOwner} is inviting you to collaborate on an exciting project. Please see the Non-Disclosure Agreement sent to each team member from the invitee. Use this link <a href="https://nnnnn.craddule.com" class="link">nnnnn.craddule.com</a> to join the team. Clicking this link and joining the team is taken as an acceptance of the NDA.</p>
+            <p>Feel free to discuss with the invitee before accepting this invitation.</p>
+            <p>Warm greetings,</p>
+            <p>From your new friends at Craddule.</p>
+        </div>
+    </body>
+    </html>
+    `;
+    
+    const emailData = {
+      to: email,
+      subject: 'New Team Invite',
+      text: text,
+      html: html
+    };
+    
+    // Call the sendEmail function
+    await sendEmail(
+      { body: emailData }, // Passing the email data as if it came from a request
+      console.log(res) // Passing the response object to handle the response in the same way
+    );
+    console.log("project owner:" +projectOwner);
+    res.json({ status: 200, message: 'Success'});
 
   } catch (error) {
     console.error(error);
