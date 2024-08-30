@@ -27,10 +27,12 @@ const createProject = async (req, res) => {
       if (!userId) {
         return res.status(400).json({ error: 'Please Login' });
       }
+      const projectCount = Math.random() < 0.5 ? 1 : 2;
 
     const newProject = new Project({
       userId,
       projectName,
+      projectCount,
       timeOfCreation: currentTime,
     });
 
@@ -89,6 +91,24 @@ const getAllProjects = async (req, res) => {
   }
 };
 
+const getProjectDetailById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(id);
+    console.log("Project details");
+    const project = await Project.findById(id);
+    if (!project) {
+      console.log("Project not found");
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    console.log(project);
+    res.status(200).json({ status: 200, data: project });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 // Controller to get projects by user ID
 const getUserProjects = async (req, res) => {
   try {
@@ -129,20 +149,27 @@ const getProjectNameById = async (req, res) => {
 const updateProjectType = async (req, res) => {
   try {
     const schema = Joi.object({
-      projectType: Joi.string().required()
+      projectType: Joi.string().required(),
+      // phases: Joi.array().items(Joi.string().required()).required(), // Validates an array of strings
     });
 
-    const { error } = schema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-
     const { projectId } = req.params;
-    const { projectType } = req.body;
+    const { projectType, phases } = req.body;
+
+    console.log(projectId);
+    console.log(projectType);
+    console.log(phases);
+
+    // const { error } = schema.validate(req.body);
+    // if (error) {
+    //   return res.status(400).json({ error: error.details[0].message });
+    // }
+
+   
 
     const updatedProject = await Project.findByIdAndUpdate(
       projectId,
-      { projectType },
+      { projectType, phases },
       { new: true }
     );
 
@@ -150,12 +177,13 @@ const updateProjectType = async (req, res) => {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    res.status(200).json({ message: 'Project type updated successfully', data: updatedProject });
+    res.status(200).json({ message: 'Project type and phases updated successfully', data: updatedProject });
   } catch (error) {
-    console.error('Error updating project type:', error);
+    console.error('Error updating project type and phases:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 
 
 // Controller to delete a project by ID
@@ -179,5 +207,6 @@ module.exports = {
     getUserProjects,
     getProjectNameById, 
     updateProjectType,
-    deleteProject 
+    deleteProject,
+    getProjectDetailById
 };

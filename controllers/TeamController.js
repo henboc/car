@@ -10,31 +10,31 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const API_BASE_URL = require('../config');
 const { sendEmail } = require('./MailController'); 
-
+const Notification = require('../models/NotificationModel');
 
 
 
 const createTeam = async (req, res) => {
   try {
     // Validate input using Joi
-    const schema = Joi.object({
-      projectId: Joi.string().required(),
-      link: Joi.string().required(),
-      uniqueCode: Joi.string().required(),
-      email: Joi.string().email().required(),
-    });
+    // const schema = Joi.object({
+    //   projectId: Joi.string().required(),
+    //   link: Joi.string().required(),
+    //   uniqueCode: Joi.string().required(),
+    //   email: Joi.string().email().required(),
+    // });
 
-    const { error } = schema.validate(req.body);
+    // const { error } = schema.validate(req.body);
 
 
-    if (error) {
-      console.log(req.body);
-      return res.status(400).json({ error: error.details[0].message });
-    }
-    const { projectId, link, email,uniqueCode} = req.body;
+    // if (error) {
+    //   console.log(req.body);
+    //   return res.status(400).json({ error: error.details[0].message });
+    // }
+    const { projectId, link, email,uniqueCode,nda} = req.body;
     
 
-
+    console.log(nda);
     // Check if email is in proper format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -62,6 +62,27 @@ const createTeam = async (req, res) => {
     await newTeam.save();
     newlink = API_BASE_URL+link;
    
+    let extraNda = '';
+    if(nda !== ""){
+      extraNda = `
+        <br>
+        <br>
+        <p>Below is an attached Nda, Clicking on the link means you accept this nda<p>
+        <br>
+        <br>
+        ${nda}
+      `;
+
+    }
+
+  // const notification = new Notification({
+  //     projectId,
+  //     notificationHead:'New Team Member',
+  //     notification: 'A new NDA has been created for your project.',
+  //     notificationRead:false
+  // });
+  // await notification.save();
+
     const text = `
     Hi co-creator,
 
@@ -111,10 +132,11 @@ const createTeam = async (req, res) => {
     <body>
         <div class="container">
             <div class="header">Hi co-creator</div>
-            <p>${projectOwner} is inviting you to collaborate on an exciting project. Please see the Non-Disclosure Agreement sent to each team member from the invitee. Use this link <a href="https://nnnnn.craddule.com" class="link">nnnnn.craddule.com</a> to join the team. Clicking this link and joining the team is taken as an acceptance of the NDA.</p>
+            <p>${projectOwner} is inviting you to collaborate on an exciting project. Please see the Non-Disclosure Agreement sent to each team member from the invitee. Use this link <a href="${newlink}" class="link">${newlink}</a> to join the team. Clicking this link and joining the team is taken as an acceptance of the NDA.</p>
             <p>Feel free to discuss with the invitee before accepting this invitation.</p>
             <p>Warm greetings,</p>
             <p>From your new friends at Craddule.</p>
+            ${extraNda}
         </div>
     </body>
     </html>
@@ -326,6 +348,13 @@ const signup = async (req, res) => {
 
         await TeamInvite.findOneAndDelete({ uniqueCode, email });
 
+        const notification = new Notification({
+          projectId,
+          notificationHead:'New Team Member',
+          notification: firstName+' As been added to the Team',
+          notificationRead:false 
+      });
+      await notification.save();
         const access_token = jwt.sign({ userId: newUser._id }, process.env.ACCESS_TOKEN_SECRET);
         res.json({ status: 200, message: 'Success',data:{ user: newUser, access_token }});
         //return res.status(400).json({ error: 'Not Found' });

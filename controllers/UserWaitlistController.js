@@ -5,6 +5,7 @@ const { sendEmail } = require('./MailController');
 
 const addToWaitlist = async (req, res) => {
   try {
+    console.log("waitlist")
     const schema = Joi.object({
       email: Joi.string().email().required()
     });

@@ -190,10 +190,46 @@ const getTimelines = async(req, res)=>{
   }
 }
 
+const calculateAnsweredPercentage = async (req, res) => {
+  const { projectId, questionType } = req.params;
+
+  try {
+      // Step 1: Fetch the total number of questions by projectId and questionSubType
+      const totalQuestions = await Question.countDocuments({ 
+        questionType 
+      });
+
+      // Step 2: Fetch the number of answered questions by projectId and questionSubType
+      const answeredQuestions = await Answer.countDocuments({ 
+          projectId, 
+          questionType 
+      });
+
+      // Step 3: Calculate the percentage
+      const percentage = totalQuestions > 0 
+          ? (answeredQuestions / totalQuestions) * 100 
+          : 0;
+
+      // Step 4: Return the result
+      return res.status(200).json({
+          projectId,
+          questionType,
+          totalQuestions,
+          answeredQuestions,
+          percentage: percentage.toFixed(2) // Limit to two decimal places
+      });
+  } catch (error) {
+      console.error('Error calculating answered percentage:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+
 module.exports = { 
     countTotalQuestionsAnsweredByTypeAndProject, 
     getTotalQuestionsByType,
     calculateCompletion,
     calculateCompletion2,
     getTimelines,
+    calculateAnsweredPercentage
 };

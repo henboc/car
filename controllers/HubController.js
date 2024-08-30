@@ -251,8 +251,10 @@ async function createPitchDeck(req, res) {
     // if (!errors.isEmpty()) {
     //   return res.status(400).json({ errors: errors.array() });
     // }
-
+    console.log('checking');
+    console.log(req.files);
     if (!req.files || Object.keys(req.files).length === 0) {
+      console.log('No files were uploaded');
       return res.status(400).json({ error: 'No files were uploaded' });
     }
 
@@ -265,7 +267,7 @@ async function createPitchDeck(req, res) {
     if (!sequence) {
       return res.status(400).json({ error: 'Sequence Required' });
     }
-
+    console.log('about to');
     const directory = path.join(__dirname, '../public', 'images');
 
     // Create directory if it doesn't exist
@@ -316,6 +318,91 @@ async function createPitchDeck(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+async function createGraph(req, res) {
+  try {
+    const userId = req.user.userId;
+    console.log(req.body);
+
+    console.log(userId);
+
+    // Check for validation errors
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //   return res.status(400).json({ errors: errors.array() });
+    // }
+    console.log('checking');
+    console.log(req.files);
+    if (!req.files || Object.keys(req.files).length === 0) {
+      console.log('No files were uploaded');
+      return res.status(400).json({ error: 'No files were uploaded' });
+    }
+    console.log('forward');
+    const { imageName, projectId,sequence,type } = req.body;
+    console.log(imageName)
+    console.log(sequence)
+    console.log(projectId)
+    console.log(type)
+    if (!imageName) {
+      console.log('no name');
+      return res.status(400).json({ error: 'Image Name Required' });
+    }
+
+    if (!sequence) {
+      return res.status(400).json({ error: 'Sequence Required' });
+    }
+    console.log('about to');
+    const directory = path.join(__dirname, '../public', 'images');
+
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(directory)) {
+      fs.mkdirSync(directory, { recursive: true });
+    }
+
+    const image = req.files.image;
+
+    // Check the size of the image (in bytes)
+    const imageSizeInBytes = image.data.length;
+    const imageSizeInMB = imageSizeInBytes / (1024 * 1024);
+    if (imageSizeInMB > 5) {
+      return res.status(400).json({ error: 'Image size exceeds the maximum allowed size (5MB)' });
+    }
+
+    // Generate a unique filename
+    const imagePath = Date.now() + '-' + image.name;
+    const destinationPath = path.join(directory, imagePath);
+
+    // Move file to the directory
+    image.mv(destinationPath, function(err) {
+      if (err) {
+        console.error('Error moving file:', err);
+        return res.status(500).json({ error: 'Error moving file' });
+      } else {
+        console.log('File moved successfully to:', destinationPath);
+      }
+    });
+
+    // Create a new prototype entry
+    const newPrototype = new Hub({
+      projectId,
+      hubFileName: imageName,
+      sequence,
+      hubFile: imagePath,
+      hubType: type,
+      userId,
+    });
+
+    console.log(newPrototype);
+
+    await newPrototype.save();
+
+    res.status(200).json({ message: 'Image uploaded successfully' });
+  } catch (error) {
+    console.log('Error uploading image:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 
 async function getPitchDeckById(req, res) {
   const deck = "PitchDeck";
@@ -651,5 +738,6 @@ module.exports = {
   getHubsByProjectId,
   getAllFilesByTimelineId,
   getTypeDetailsProject,
-  createBrandUpload
+  createBrandUpload,
+  createGraph
 };

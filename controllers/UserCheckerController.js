@@ -29,7 +29,7 @@ const createCheck = async (req, res) => {
     console.log(newUserCheck);
     await newUserCheck.save();
     console.log("new guy");
-    res.json({ status: 200, message: 'Success',check: "1", data: newUserCheck });
+    res.json({ status: 200, message: 'Success',check: "0", data: newUserCheck });
     }else{
       console.log("old guy");
       res.json({ status: 200, message: 'Success',check: "1",data:userCheck});

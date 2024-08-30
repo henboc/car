@@ -1,20 +1,25 @@
+// models/Notification.js
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const PDFSummarySchema = new mongoose.Schema({
-    summary: String,
-    projectId: String,
-    phase: String,
-    questionType: String,
-    questionSubType: String,
-    userId: String,
-    timeSent: {
+const NotificationSchema = new Schema({
+    projectId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Project', // Reference to the Project model
+        required: true,
+    },
+    message: {
+        type: String,
+        required: true,
+    },
+    notificationRead: {
+        type: Boolean,
+        default: false,
+    },
+    createdAt: {
         type: Date,
-        default: Date.now
-      }
+        default: Date.now,
+    }
 });
 
-
-
-const PDFSummary = mongoose.model('pdf', PDFSummarySchema);
-
-module.exports = PDFSummary;
+module.exports = mongoose.model('Notification', NotificationSchema);
