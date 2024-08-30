@@ -8,5 +8,6 @@ const algoController = require('../controllers/algorithms');
 router.post('/qcount/:userId/:questionType/:projectId', algoController.countTotalQuestionsAnsweredByTypeAndProject);
 router.post('/qcountq/:questionType', algoController.getTotalQuestionsByType);
 router.get('/:projectId/', algoController.getTimelines);
+router.get('/:projectId/:questionType', algoController.calculateAnsweredPercentage);
 
 module.exports = router;

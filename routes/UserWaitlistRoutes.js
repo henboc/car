@@ -4,6 +4,6 @@ const { addToWaitlist } = require('../controllers/UserWaitlistController');
 
 const router = express.Router();
 
-router.post('/:', addToWaitlist);
+router.post('/', addToWaitlist);
 
 module.exports = router;

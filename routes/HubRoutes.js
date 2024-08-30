@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const AuthRoutes = require('../authMiddleware');
-const {getHubs,getTypes, getTypeDetails,getSubtypeFiles,getHubsByProjectId,getAllFilesByTimelineId,getTypeDetailsProject,createBrandUpload} = require('../controllers/HubController');
+const {getHubs,getTypes, getTypeDetails,getSubtypeFiles,getHubsByProjectId,getAllFilesByTimelineId,getTypeDetailsProject,createBrandUpload,createGraph} = require('../controllers/HubController');
 
 // Define route for saving graph data
 router.post('/brand', AuthRoutes.verifyTokenUser, createBrandUpload);
+router.post('/graph', AuthRoutes.verifyTokenUser,createGraph);
 router.get('/', getHubs);
 router.get('/types/:projectId', getTypes);
 router.get('/files/:timelineId', getAllFilesByTimelineId);
