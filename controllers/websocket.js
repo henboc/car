@@ -24,7 +24,7 @@ const decrypt = (text) => {
 function setupWebSocket(server) {
     const io = new Server(server, {
         cors: {
-            origin: 'http://localhost:3000', // Allow requests from this origin
+            origin: 'https://app.craddule.com', // Allow requests from this origin
             methods: ['GET', 'POST'],
             allowedHeaders: ['Content-Type'],
             credentials: true
